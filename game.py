@@ -4,6 +4,7 @@ from event_loop import EventLoop
 from maze import Maze
 from pacman import PacMan
 import shelve
+from sound import Sound
 
 
 class PacmanPortalGame:
@@ -23,6 +24,8 @@ class PacmanPortalGame:
         self.player = PacMan(screen=self.screen, maze=self.maze)
 
         self.actions = {PacmanPortalGame.REBUILD_EVENT: self.rebuild_maze}
+        
+        self.sound = Sound(bg_music="sounds/wakawaka.wav")
 
     def rebuild_maze(self):
         self.maze.build_maze()
@@ -57,6 +60,7 @@ class PacmanPortalGame:
             pygame.display.flip()
 
     def play_game(self):
+        self.sound.play_bg()
         e_loop = EventLoop(loop_running=True, actions={**self.player.event_map, **self.actions})
         if self.player.dead:
             self.player.revive()
