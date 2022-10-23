@@ -40,7 +40,9 @@ class PacmanPortalGame:
         self.screen.fill(PacmanPortalGame.BLACK_BG)
         self.check_player()
         self.maze.blit()
-        self.player.update()
+        if not self.pause:
+            self.player.update()
+            self.maze.teleport.check_teleport(self.player.rect)
         self.player.blit()
         pygame.display.flip()
 
@@ -64,6 +66,7 @@ class PacmanPortalGame:
             self.clock.tick(60)
             e_loop.check_events()
             self.update_screen()
+
 import pygame as pg
 import shelve
 from Highscores import highscore_menu
@@ -74,7 +77,7 @@ def main():
     
     pg.init() 
 
-    resolution = (1080,720) 
+    resolution = (800, 600) 
     
     screen = pg.display.set_mode(resolution) 
     
@@ -141,11 +144,6 @@ def main():
     scorestext = buttonFont.render('Scores' , True , white) 
     highscoreText = buttonFont.render(Highscore_str, True , white)
     
-    
-    
-    
-    
-
     
     while True: 
         

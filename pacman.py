@@ -1,5 +1,6 @@
 import pygame
 from image_manager import ImageManager
+from portal import PortalController
 import shelve
 
 
@@ -13,9 +14,9 @@ class PacMan(pygame.sprite.Sprite):
         self.maze = maze
         self.score = 0
         self.bg_color = (0, 0, 0)
-        d = shelve.open('score.txt')
-        self.high_score = d['score']
-        d.close()
+        # d = shelve.open('score.txt')
+        # self.high_score = d['score']
+        # d.close()
         self.text_color = (150, 150, 150)
         self.font = pygame.font.SysFont(None, 48)
         self.score_image = None 
@@ -27,14 +28,14 @@ class PacMan(pygame.sprite.Sprite):
                                                                                            (0, 32, 32, 32),
                                                                                            (32, 32, 32, 32),
                                                                                            (0, 64, 32, 32)],
-                                              resize=(self.maze.block_size // 1.2, self.maze.block_size // 1.2),
+                                              resize=(self.maze.block_size // 1.8, self.maze.block_size // 1.8),
                                               reversible=True)
         self.vertical_images = ImageManager('pacman-vert.png', sheet=True, pos_offsets=[(0, 0, 32, 32),
                                                                                         (32, 0, 32, 32),
                                                                                         (0, 32, 32, 32),
                                                                                         (32, 32, 32, 32),
                                                                                         (0, 64, 32, 32)],
-                                            resize=(self.maze.block_size // 1.2, self.maze.block_size // 1.2),
+                                            resize=(self.maze.block_size // 1.8, self.maze.block_size // 1.8),
                                             reversible=True)
         self.death_images = ImageManager('pacman-death.png', sheet=True, pos_offsets=[(0, 0, 32, 32),
                                                                                       (32, 0, 32, 32),
@@ -42,7 +43,7 @@ class PacMan(pygame.sprite.Sprite):
                                                                                       (32, 32, 32, 32),
                                                                                       (0, 64, 32, 32),
                                                                                       (32, 64, 32, 32)],
-                                         resize=(self.maze.block_size // 1.2, self.maze.block_size // 1.2),
+                                         resize=(self.maze.block_size // 1.8, self.maze.block_size // 1.8),
                                          animation_delay=150, repeat=False)
         self.flip_status = {'use_horiz': True, 'h_flip': False, 'v_flip': False}
         self.spawn_info = self.maze.player_spawn[1]
@@ -53,11 +54,22 @@ class PacMan(pygame.sprite.Sprite):
         self.image, self.rect = self.horizontal_images.get_image()
         self.rect.centerx, self.rect.centery = self.spawn_info   # screen coordinates for spawn
         self.dead = False
+        self.portal_controller = PortalController(screen, self, maze)
 
         # Keyboard related events/actions/releases
         self.event_map = {pygame.KEYDOWN: self.perform_action, pygame.KEYUP: self.reset_direction}
         self.action_map = {pygame.K_UP: self.set_move_up, pygame.K_LEFT: self.set_move_left,
-                           pygame.K_DOWN: self.set_move_down, pygame.K_RIGHT: self.set_move_right}
+                           pygame.K_DOWN: self.set_move_down, pygame.K_RIGHT: self.set_move_right,
+                           pygame.K_q: self.blue_portal, pygame.K_w: self.orange_portal}
+
+    def clear_portals(self):
+        self.portal_controller.clear_portals()
+
+    def blue_portal(self):
+        self.portal_controller.fire_b_portal_projectile()
+
+    def orange_portal(self):
+        self.portal_controller.fire_o_portal_projectile()
 
     def set_death(self):
         self.dead = True
@@ -140,11 +152,15 @@ class PacMan(pygame.sprite.Sprite):
                 result = True
             elif pygame.sprite.spritecollideany(self, self.maze.shield_blocks):
                 result = True
+            elif not self.portal_controller.portals_usable():
+                result = self.portal_controller.collide_portals(self)
             self.rect = original_pos    # reset position
         return result
 
     def update(self):
         if not self.dead:
+            self.portal_controller.update()
+            self.portal_controller.check_portals(self)
             if self.direction and self.moving:
                 if self.flip_status['use_horiz']:
                     self.image = self.horizontal_images.next_image()
@@ -165,6 +181,7 @@ class PacMan(pygame.sprite.Sprite):
         self.eat()
 
     def blit(self):
+        self.portal_controller.blit()
         self.screen.blit(self.image, self.rect)
 
     def eat(self):
@@ -188,11 +205,11 @@ class PacMan(pygame.sprite.Sprite):
             score += 20
             self.score += 10
             power = True
-        if self.score > self.high_score:
-            self.high_score = self.score
-            d = shelve.open('score.txt')
-            d['score'] = self.high_score
-            d.close() 
+        # if self.score > self.high_score:
+        #     self.high_score = self.score
+        #     d = shelve.open('score.txt')
+        #     d['score'] = self.high_score
+        #     d.close() 
         self.prep_score()
         self.update_score()
         return score, fruit_count, power
