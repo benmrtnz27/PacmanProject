@@ -1,5 +1,6 @@
 import pygame
 from image_manager import ImageManager
+import shelve
 
 
 class PacMan(pygame.sprite.Sprite):
@@ -10,6 +11,17 @@ class PacMan(pygame.sprite.Sprite):
         self.screen = screen
         self.radius = maze.block_size // 5
         self.maze = maze
+        self.score = 0
+        self.bg_color = (0, 0, 0)
+        d = shelve.open('score.txt')
+        self.high_score = d['score']
+        d.close()
+        self.text_color = (150, 150, 150)
+        self.font = pygame.font.SysFont(None, 48)
+        self.score_image = None 
+        self.score_rect = None
+        self.prep_score()
+
         self.horizontal_images = ImageManager('pacman-horiz.png', sheet=True, pos_offsets=[(0, 0, 32, 32),
                                                                                            (32, 0, 32, 32),
                                                                                            (0, 32, 32, 32),
@@ -150,6 +162,7 @@ class PacMan(pygame.sprite.Sprite):
                 self.tile = (self.get_nearest_row(), self.get_nearest_col())
         else:
             self.image = self.death_images.next_image()
+        self.eat()
 
     def blit(self):
         self.screen.blit(self.image, self.rect)
@@ -162,14 +175,56 @@ class PacMan(pygame.sprite.Sprite):
         if collision:
             collision.kill()
             score += 10
+            self.score += 10
         collision = pygame.sprite.spritecollideany(self, self.maze.fruits)
         if collision:
             collision.kill()
             score += 20
+            self.score += 10
             fruit_count += 1
         collision = pygame.sprite.spritecollideany(self, self.maze.power_pellets)
         if collision:
             collision.kill()
             score += 20
+            self.score += 10
             power = True
+        if self.score > self.high_score:
+            self.high_score = self.score
+            d = shelve.open('score.txt')
+            d['score'] = self.high_score
+            d.close() 
+        self.prep_score()
+        self.update_score()
         return score, fruit_count, power
+    
+    
+    def prep_score(self):
+        score_str = f"Score: {str(self.score)}"
+        #high = shelve.open('score.txt')
+        #high_str = f"Highscore: {str(high['score'])}"
+        #high.close()
+
+        self.score_image = self.font.render(score_str, True, self.text_color, self.bg_color)
+        #self.highscore_image = self.font.render(high_str, True, self.text_color, self.settings.bg_color)
+        # Display the score at the top right of the screen.
+        self.score_rect = self.score_image.get_rect()
+        #self.score_rect.right = 680
+        #self.score_rect.top = 20
+
+       #self.highscore_rect = self.highscore_image.get_rect()
+       #self.highscore_rect.left = self.screen_rect.left + 20
+       #self.highscore_rect.top = 20
+    
+    def reset_score(self): 
+        self.score = 0
+        self.update()
+
+    def update_score(self): 
+        # other stuff
+        self.draw_score()
+
+    def draw_score(self): 
+        self.screen.blit(self.score_image, self.score_rect)
+        #self.screen.blit(self.highscore_image, self.highscore_rect)
+    
+    
