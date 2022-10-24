@@ -206,11 +206,17 @@ class PacMan(pygame.sprite.Sprite):
             collision.kill()
             score += 10
             self.score += 10
+        collision = pygame.sprite.spritecollideany(self, self.maze.power_pellets)
+        if collision:
+            collision.kill()
+            score += 20
+            self.score += 20
+            power = True
         collision = pygame.sprite.spritecollideany(self, self.maze.fruits)
         if collision:
             collision.kill()
             score += 20
-            self.score += 10
+            self.score += 20
             fruit_count += 1
             n = 1
         
@@ -237,36 +243,6 @@ class PacMan(pygame.sprite.Sprite):
                             d.close()
                             n=0
                             break
-                    
-    
-                    
-        collision = pygame.sprite.spritecollideany(self, self.maze.power_pellets)
-        if collision:
-            collision.kill()
-            score += 20
-            self.score += 10
-            power = True
-        #n = 1
-        #while n == 1:
-        #    for i in range (1,6):
-        #        d = shelve.open(f'score{i}.txt')
-        #        if self.score > d[f'score{i}']:
-        #            x = i + (5-i)
-        #            while (x != i):
-        #                e = shelve.open(f'score{x}.txt')
-        #                f = shelve.open(f'score{x-1}.txt')
-        #                e[f'score{x}'] = f[f'score{x-1}']
-        #                x = x - 1
-        #                e.close()
-        #                f.close()    
-        #            d[f'score{i}'] = self.score
-        #            d.close()
-        #            n = 0
-        #if self.score > self.highscores[1]:
-        #    self.highscores[1] = self.score
-        #    d = shelve.open('score1.txt')
-        #    d['score1'] = self.highscores[1]
-        #    d.close() 
         self.prep_score()
         self.update_score()
         return score, fruit_count, power
