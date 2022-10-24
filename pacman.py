@@ -4,6 +4,7 @@ from portal import PortalController
 import shelve
 
 
+
 class PacMan(pygame.sprite.Sprite):
     PAC_YELLOW = (255, 255, 0)
 
@@ -87,11 +88,41 @@ class PacMan(pygame.sprite.Sprite):
     def set_death(self):
         self.dead = True
         self.image, _ = self.death_images.get_image()
+        self.lives = self.lives - 1
 
     def revive(self):
-        self.dead = False
-        self.image, _ = self.horizontal_images.get_image()
-        self.death_images.image_index = 0
+        if self.lives !=0:
+            self.dead = False
+            self.image, _ = self.horizontal_images.get_image()
+            self.death_images.image_index = 0
+        else:
+            n = 1
+        
+            if self.score > self.low:
+                
+                while n == 1:
+                    for i in range (1,6):
+                        d = shelve.open(f'score{i}.txt')
+                        if self.score > d[f'score{i}']:
+                            x = i + (5-i)
+
+                            if d[f'score{i}'] != 0:
+                                while (x != i):
+                                    e = shelve.open(f'score{x}.txt')
+                                    f = shelve.open(f'score{x-1}.txt')
+                                    e[f'score{x}'] = f[f'score{x-1}']
+                                    x = x - 1
+                                    e.close()
+                                    f.close()
+
+                            d[f'score{i}'] = self.score
+                        if (self.score == d[f'score{i}']):
+
+                            d.close()
+                            n=0
+                            break
+            return
+            
 
     def reset_position(self):
         self.rect.centerx, self.rect.centery = self.spawn_info 
@@ -217,31 +248,31 @@ class PacMan(pygame.sprite.Sprite):
             score += 20
             self.score += 20
             fruit_count += 1
-            n = 1
+           # n = 1
         
-            if self.score > self.low:
-                
-                while n == 1:
-                    for i in range (1,6):
-                        d = shelve.open(f'score{i}.txt')
-                        if self.score > d[f'score{i}']:
-                            x = i + (5-i)
+           # if self.score > self.low:
+           #     
+           #     while n == 1:
+           #         for i in range (1,6):
+           #             d = shelve.open(f'score{i}.txt')
+           #             if self.score > d[f'score{i}']:
+           #                 x = i + (5-i)
 
-                            if d[f'score{i}'] != 0:
-                                while (x != i):
-                                    e = shelve.open(f'score{x}.txt')
-                                    f = shelve.open(f'score{x-1}.txt')
-                                    e[f'score{x}'] = f[f'score{x-1}']
-                                    x = x - 1
-                                    e.close()
-                                    f.close()
+           #                 if d[f'score{i}'] != 0:
+           #                     while (x != i):
+           #                         e = shelve.open(f'score{x}.txt')
+           #                         f = shelve.open(f'score{x-1}.txt')
+           #                         e[f'score{x}'] = f[f'score{x-1}']
+           #                         x = x - 1
+           #                         e.close()
+           #                         f.close()
 
-                            d[f'score{i}'] = self.score
-                        if (self.score == d[f'score{i}']):
+           #                 d[f'score{i}'] = self.score
+           #             if (self.score == d[f'score{i}']):
 
-                            d.close()
-                            n=0
-                            break
+           #                 d.close()
+           #                 n=0
+           #                 break
         self.prep_score()
         self.update_score()
         return score, fruit_count, power

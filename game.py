@@ -94,6 +94,9 @@ class PacmanPortalGame:
                 g.reset_position()
             if self.player.dead:
                 self.player.revive()
+                if self.player.lives == 0:
+                    self.player.lives=3
+                    main()
             if self.pause:
                 self.pause = False
             self.level_transition.set_show_transition()
@@ -165,6 +168,7 @@ class PacmanPortalGame:
             pygame.display.flip()
 
     def play_game(self):
+        self.sound.play_bg()
         e_loop = EventLoop(loop_running=True, actions={**self.player.event_map, **self.actions})
         self.level_transition.set_show_transition()
         self.game_over = False
@@ -310,8 +314,8 @@ def main():
         orangeGhost = pg. transform. scale(orangeGhost, (104, 104))
         title1 = pg.image.load(f'images/pacmanTitle.png')
         title1 = pg. transform. scale(title1, (400, 123))
-        titleimages0 = [pg.transform.rotozoom(pg.image.load(f'startani/frame_{n}_delay-0.1s.jpg'), 0, .6) for n in range(0, 16 , 1)]
-        timerAni = Timer(image_list=titleimages0, delay = .1, is_loop = True)
+        titleimages0 = [pg.transform.rotozoom(pg.image.load(f'startani/frame_{n}_delay-0.1s.jpg'), 0, .6) for n in range(5, 16 , 1)]
+        timerAni = Timer(image_list=titleimages0, delay = 10, is_loop = True)
         
         image = timerAni.image()
         
