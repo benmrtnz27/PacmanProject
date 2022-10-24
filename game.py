@@ -105,7 +105,6 @@ class PacmanPortalGame:
         n_score, n_fruits, power = self.player.eat()
         self.score_keeper.add_score(score=n_score, items=n_fruits if n_fruits > 0 else None)
         if power:
-            print(power)
             for g in self.ghosts:
                 g.begin_blue_state()
         ghost_collide = pygame.sprite.spritecollideany(self.player, self.ghosts)

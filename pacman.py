@@ -191,7 +191,6 @@ class PacMan(pygame.sprite.Sprite):
                 self.tile = (self.get_nearest_row(), self.get_nearest_col())
         else:
             self.image = self.death_images.next_image()
-        self.eat()
 
     def blit(self):
         self.portal_controller.blit()
