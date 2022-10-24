@@ -168,6 +168,7 @@ class PacmanPortalGame:
             pygame.display.flip()
 
     def play_game(self):
+        self.sound.play_bg()
         e_loop = EventLoop(loop_running=True, actions={**self.player.event_map, **self.actions})
         self.level_transition.set_show_transition()
         self.game_over = False
