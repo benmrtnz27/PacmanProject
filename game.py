@@ -338,5 +338,5 @@ def main():
 
 if __name__ == '__main__':
     game = PacmanPortalGame()
-    game.run()
     main()
+    game.run()
