@@ -7,7 +7,7 @@ class highscore_menu:
         """Initialize the game's static settings."""
         
 
-        self.resolution = (1080,720) 
+        self.resolution = (800,600) 
     
         self.screen = pg.display.set_mode(self.resolution)
         self.width = self.screen.get_width() 
@@ -18,8 +18,10 @@ class highscore_menu:
     
     
     def run(self):
-        a = shelve.open('score.txt')
-        highscore = a['score']
+        buttonFont = pg.font.SysFont('bahnschrift',30)
+        white = (255,255,255) 
+        a = shelve.open('score1.txt')
+        highscore = a['score1']
         b = shelve.open('score2.txt')  
         highscore2 = b['score2'] 
         c = shelve.open('score3.txt')  
@@ -29,11 +31,19 @@ class highscore_menu:
         e = shelve.open('score5.txt')  
         highscore5 = e['score5'] 
 
-        Highscore_str = f"Highscore: {str(highscore)}"
-        Highscore_str2 = f"Highscore: {str(highscore)}"
-        Highscore_str3 = f"Highscore: {str(highscore)}"
-        Highscore_str4 = f"Highscore: {str(highscore)}"
-        Highscore_str5 = f"Highscore: {str(highscore)}"
+        Highscore_str = f"1: {str(highscore)}"
+        Highscore_str2 = f"2: {str(highscore2)}"
+        Highscore_str3 = f"3: {str(highscore3)}"
+        Highscore_str4 = f"4: {str(highscore4)}"
+        Highscore_str5 = f"5: {str(highscore5)}"
+
+        highscoreText = buttonFont.render(Highscore_str, True , white)
+        highscoreText2 = buttonFont.render(Highscore_str2, True , white)
+        highscoreText3 = buttonFont.render(Highscore_str3, True , white)
+        highscoreText4 = buttonFont.render(Highscore_str4, True , white)
+        highscoreText5 = buttonFont.render(Highscore_str5, True , white)
+        
+        
 
 
 
@@ -56,6 +66,11 @@ class highscore_menu:
                 pg.draw.rect(self.screen,self.hoverButton,[self.width/2-5,self.height/2-300,70,40])         
             else: 
                 pg.draw.rect(self.screen,self.restingButton,[self.width/2-5,self.height/2-300,70,40]) 
+            self.screen.blit(highscoreText, (self.width/2,self.height/2-200))
+            self.screen.blit(highscoreText2, (self.width/2,self.height/2-100))
+            self.screen.blit(highscoreText3, (self.width/2,self.height/2))
+            self.screen.blit(highscoreText4, (self.width/2,self.height/2+100))
+            self.screen.blit(highscoreText5, (self.width/2,self.height/2+200))
             self.screen.blit(backText , (self.width/2-5,self.height/2-300)) 
             pg.display.update()    
 

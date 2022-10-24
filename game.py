@@ -5,6 +5,7 @@ from maze import Maze
 from pacman import PacMan
 import shelve
 from sound import Sound
+from ReusedTimer import Timer
 
 
 class PacmanPortalGame:
@@ -102,12 +103,12 @@ def main():
     buttonFont = pg.font.SysFont('bahnschrift',30) 
     titlefont = pg.font.SysFont('bahnschrift',80) 
     try:
-        a = shelve.open('score.txt')  # here you will save the score variable   
-        highscore = a['score']           # thats all, now it is saved on disk.  
+        a = shelve.open('score1.txt')  # here you will save the score variable   
+        highscore = a['score1']           # thats all, now it is saved on disk.  
     except:
         highscore = 0
-        a = shelve.open('score.txt')
-        a['score'] = highscore
+        a = shelve.open('score1.txt')
+        a['score1'] = highscore
 
     try:
         b = shelve.open('score2.txt')  
@@ -200,18 +201,22 @@ def main():
         orangeGhost = pg. transform. scale(orangeGhost, (104, 104))
         title1 = pg.image.load(f'images/pacmanTitle.png')
         title1 = pg. transform. scale(title1, (400, 123))
-
+        titleimages0 = [pg.transform.rotozoom(pg.image.load(f'startani/frame_{n}_delay-0.1s.jpg'), 0, .6) for n in range(0, 16 , 1)]
+        timerAni = Timer(image_list=titleimages0, delay = .1, is_loop = True)
         
+        image = timerAni.image()
+        
+        screen.blit(image, (width/2-100,height/2-150) )
+        #titleimageTimer = Timer(titleimages0)
         screen.blit(quitText , (width/2,height/2+100)) 
         screen.blit(scorestext , (width/2-15,height/2+150)) 
         screen.blit(playtext , (width/2,height/2+52))
         screen.blit(title1, (width/2.8,height/2-300))
-        screen.blit(highscoreText, (width/2-530,height/2-350))
+        screen.blit(highscoreText, (width/2-530,height/2-350)) 
         
-        screen.blit(pinkGhost, (width/2-150,height/2-150))
-        screen.blit(redGhost, (width/2-50,height/2-150))
-        screen.blit(blueGhost, (width/2+50,height/2-150))
-        screen.blit(orangeGhost, (width/2+150,height/2-150))
+        #screen.blit(redGhost, (width/2-50,height/2-150))
+        #screen.blit(blueGhost, (width/2+50,height/2-150))
+        #screen.blit(orangeGhost, (width/2+150,height/2-150))
        
         
         pg.font.get_fonts()
