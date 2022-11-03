@@ -4,6 +4,7 @@ from portal import PortalController
 import shelve
 
 
+
 class PacMan(pygame.sprite.Sprite):
     PAC_YELLOW = (255, 255, 0)
 
@@ -14,13 +15,26 @@ class PacMan(pygame.sprite.Sprite):
         self.maze = maze
         self.score = 0
         self.bg_color = (0, 0, 0)
-        # d = shelve.open('score.txt')
-        # self.high_score = d['score']
-        # d.close()
+        #self.highscores = [0, 0, 0 ,0 ,0]
+        #for i in range (1,6):
+        #    d = shelve.open(f'score{i}.txt')
+        #    self.highscores[i] = d[f'score{i}']
+        #    d.close()
+
+        b = shelve.open('score5.txt')
+        self.low = b['score5']
+        b.close
+
+       #d = shelve.open('score.txt')
+       #self.high_score = d['score']
+       #d.close()
+        self.lives = 3
         self.text_color = (150, 150, 150)
         self.font = pygame.font.SysFont(None, 48)
         self.score_image = None 
+        self.lives_image = None
         self.score_rect = None
+        self.lives_rect = None
         self.prep_score()
 
         self.horizontal_images = ImageManager('pacman-horiz.png', sheet=True, pos_offsets=[(0, 0, 32, 32),
@@ -74,11 +88,41 @@ class PacMan(pygame.sprite.Sprite):
     def set_death(self):
         self.dead = True
         self.image, _ = self.death_images.get_image()
+        self.lives = self.lives - 1
 
     def revive(self):
-        self.dead = False
-        self.image, _ = self.horizontal_images.get_image()
-        self.death_images.image_index = 0
+        if self.lives !=0:
+            self.dead = False
+            self.image, _ = self.horizontal_images.get_image()
+            self.death_images.image_index = 0
+        else:
+            n = 1
+        
+            if self.score > self.low:
+                
+                while n == 1:
+                    for i in range (1,6):
+                        d = shelve.open(f'score{i}.txt')
+                        if self.score > d[f'score{i}']:
+                            x = i + (5-i)
+
+                            if d[f'score{i}'] != 0:
+                                while (x != i):
+                                    e = shelve.open(f'score{x}.txt')
+                                    f = shelve.open(f'score{x-1}.txt')
+                                    e[f'score{x}'] = f[f'score{x-1}']
+                                    x = x - 1
+                                    e.close()
+                                    f.close()
+
+                            d[f'score{i}'] = self.score
+                        if (self.score == d[f'score{i}']):
+
+                            d.close()
+                            n=0
+                            break
+            return
+            
 
     def reset_position(self):
         self.rect.centerx, self.rect.centery = self.spawn_info 
@@ -178,7 +222,6 @@ class PacMan(pygame.sprite.Sprite):
                 self.tile = (self.get_nearest_row(), self.get_nearest_col())
         else:
             self.image = self.death_images.next_image()
-        self.eat()
 
     def blit(self):
         self.portal_controller.blit()
@@ -193,23 +236,43 @@ class PacMan(pygame.sprite.Sprite):
             collision.kill()
             score += 10
             self.score += 10
-        collision = pygame.sprite.spritecollideany(self, self.maze.fruits)
-        if collision:
-            collision.kill()
-            score += 20
-            self.score += 10
-            fruit_count += 1
         collision = pygame.sprite.spritecollideany(self, self.maze.power_pellets)
         if collision:
             collision.kill()
             score += 20
-            self.score += 10
+            self.score += 20
             power = True
-        # if self.score > self.high_score:
-        #     self.high_score = self.score
-        #     d = shelve.open('score.txt')
-        #     d['score'] = self.high_score
-        #     d.close() 
+        collision = pygame.sprite.spritecollideany(self, self.maze.fruits)
+        if collision:
+            collision.kill()
+            score += 20
+            self.score += 20
+            fruit_count += 1
+           # n = 1
+        
+           # if self.score > self.low:
+           #     
+           #     while n == 1:
+           #         for i in range (1,6):
+           #             d = shelve.open(f'score{i}.txt')
+           #             if self.score > d[f'score{i}']:
+           #                 x = i + (5-i)
+
+           #                 if d[f'score{i}'] != 0:
+           #                     while (x != i):
+           #                         e = shelve.open(f'score{x}.txt')
+           #                         f = shelve.open(f'score{x-1}.txt')
+           #                         e[f'score{x}'] = f[f'score{x-1}']
+           #                         x = x - 1
+           #                         e.close()
+           #                         f.close()
+
+           #                 d[f'score{i}'] = self.score
+           #             if (self.score == d[f'score{i}']):
+
+           #                 d.close()
+           #                 n=0
+           #                 break
         self.prep_score()
         self.update_score()
         return score, fruit_count, power
@@ -220,10 +283,13 @@ class PacMan(pygame.sprite.Sprite):
         #high = shelve.open('score.txt')
         #high_str = f"Highscore: {str(high['score'])}"
         #high.close()
+        lives_str = f"Lives: {str(self.lives)}"
+        self.lives_image = self.font.render(lives_str, True, self.text_color, self.bg_color)
 
         self.score_image = self.font.render(score_str, True, self.text_color, self.bg_color)
         #self.highscore_image = self.font.render(high_str, True, self.text_color, self.settings.bg_color)
         # Display the score at the top right of the screen.
+        self.lives_rect = self.lives_image.get_rect()
         self.score_rect = self.score_image.get_rect()
         #self.score_rect.right = 680
         #self.score_rect.top = 20
@@ -242,6 +308,23 @@ class PacMan(pygame.sprite.Sprite):
 
     def draw_score(self): 
         self.screen.blit(self.score_image, self.score_rect)
+        self.screen.blit(self.lives_image , (150, 560)) 
+        #self.screen.blit(self.lives_image, self.lives_rect)
+        
         #self.screen.blit(self.highscore_image, self.highscore_rect)
-    
-    
+        #n = 1
+        #while n == 1:
+        #    for i in range (1,6):
+        #        d = shelve.open(f'score{i}.txt')
+        #        if self.score > d[f'score{i}']:
+        #            x = i + (5-i)
+        #            while (x != i):
+        #                e = shelve.open(f'score{x}.txt')
+        #                f = shelve.open(f'score{x-1}.txt')
+        #                e[f'score{x}'] = f[f'score{x-1}']
+        #                x = x - 1
+        #                e.close()
+        #                f.close()    
+        #            d[f'score{i}'] = self.score
+        #            d.close()
+        #            n = 0

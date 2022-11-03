@@ -53,7 +53,6 @@ class Maze:
         return True if self.pellets or self.power_pellets else False
 
     def build_maze(self):
-        # reset maze assets if they exist already
         if self.maze_blocks or self.pellets or self.fruits or self.power_pellets or self.shield_blocks:
             self.maze_blocks.empty()
             self.pellets.empty()
